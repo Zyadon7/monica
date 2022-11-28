@@ -1,1 +1,56 @@
-asdf
+# https://hub.docker.com/_/monica
+
+version: "3.4"
+
+services:
+  app:
+    image: monica
+    depends_on:
+      - db
+    ports:
+      - ${APP_PORT}:80
+    environment:
+      - APP_KEY=${APP_KEY}
+      - DB_HOST=db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      # https://github.com/monicahq/monica/blob/main/docs/installation/mail.md
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+      # Outgoing emails will be sent with these identity
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_FROM_NAME="Monica instance"
+      # New registration notification sent to this email
+      - APP_EMAIL_NEW_USERS_NOTIFICATION=${APP_EMAIL_NEW_USERS_NOTIFICATION}
+
+      # Ability to disable signups on your instance.
+      # Can be true or false. Default to false.
+      - APP_DISABLE_SIGNUP=${APP_DISABLE_SIGNUP}
+
+      # Enable user email verification.
+      - APP_SIGNUP_DOUBLE_OPTIN=true
+    volumes:
+      - ${APP_VOLUME}:/var/www/html/storage
+    restart: unless-stopped
+
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ${DB_VOLUME}:/var/lib/mysql
+    restart: unless-stopped
+
+#volumes:
+#  data:
+#    name: data
+#  mysql:
+#    name: mysql
+
